@@ -133,7 +133,7 @@ const components = {
       />
     </Suspense>
   ),
-  Youtube: ({ id }: { id: string }) => (
+  YouTube: ({ id }: { id: string }) => (
     <div className="w-full">
       <div className="relative isolate pb-[64.63195691202873%] h-0 w-full">
         <iframe
@@ -147,6 +147,7 @@ const components = {
   ),
   Video: ({ src }: { src: string }) => (
     <div className="w-full">
+      {/* biome-ignore lint/a11y/useMediaCaption: Blog videos currently do not ship with caption files. */}
       <video src={src} className="w-full rounded-xl" controls />
     </div>
   ),

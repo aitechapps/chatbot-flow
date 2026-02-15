@@ -1,5 +1,6 @@
+import { authenticatedProcedure } from "@typebot.io/config/orpc/builder/middlewares";
 import { publicProcedure } from "@typebot.io/config/orpc/viewer/middlewares";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import {
   generateUploadUrlV1InputSchema,
   handleGenerateUploadUrlV1,
@@ -16,8 +17,31 @@ import {
   generateUploadUrlInputSchema,
   handleGenerateUploadUrl,
 } from "./handleGenerateUploadUrl";
+import {
+  getPrivateFileInputSchema,
+  handleGetPrivateFile,
+} from "./handleGetPrivateFile";
 
-export const publicRouter = {
+export const fileUploadBuilderRouter = {
+  getPrivateFile: authenticatedProcedure
+    .route({
+      method: "GET",
+      path: "/s3/private/{+rest}",
+      successStatus: 307,
+      outputStructure: "detailed",
+    })
+    .output(
+      z.object({
+        headers: z.object({
+          location: z.string(),
+        }),
+      }),
+    )
+    .input(getPrivateFileInputSchema)
+    .handler(handleGetPrivateFile),
+};
+
+export const fileUploadViewerRouter = {
   generateUploadUrlProcedure: publicProcedure
     .route({
       method: "POST",
@@ -35,9 +59,6 @@ export const publicRouter = {
       }),
     )
     .handler(handleGenerateUploadUrl),
-};
-
-export const privateRouter = {
   generateUploadUrlV1Procedure: publicProcedure
     .route({
       method: "POST",

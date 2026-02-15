@@ -4,7 +4,7 @@ import {
   optionBaseSchema,
 } from "@typebot.io/blocks-base/schemas";
 import { conditionSchema } from "@typebot.io/conditions/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { InputBlockType } from "../constants";
 
 export const choiceInputOptionsSchema = optionBaseSchema.merge(
@@ -55,18 +55,10 @@ export const buttonsInputV5Schema = blockBaseSchema.merge(
 );
 
 export const buttonsInputSchemas = {
-  v5: buttonsInputV5Schema.openapi({
-    title: "Buttons v5",
-    ref: "buttonsInputV5",
+  v5: buttonsInputV5Schema,
+  v6: buttonsInputV5Schema.extend({
+    items: z.array(buttonItemSchemas.v6),
   }),
-  v6: buttonsInputV5Schema
-    .extend({
-      items: z.array(buttonItemSchemas.v6),
-    })
-    .openapi({
-      title: "Buttons",
-      ref: "buttonsInput",
-    }),
 } as const;
 
 export const buttonsInputSchema = z.union([

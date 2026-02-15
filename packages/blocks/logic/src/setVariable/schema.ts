@@ -1,5 +1,5 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { LogicBlockType } from "../constants";
 import { valueTypesWithNoOptions } from "./constants";
 
@@ -65,16 +65,11 @@ export const setVariableOptionsSchema = z.discriminatedUnion("type", [
   popOrShiftSetVariableOptionsSchema,
 ]);
 
-export const setVariableBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([LogicBlockType.SET_VARIABLE]),
-      options: setVariableOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Set variable",
-    ref: "setVariableLogic",
-  });
+export const setVariableBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([LogicBlockType.SET_VARIABLE]),
+    options: setVariableOptionsSchema.optional(),
+  }),
+);
 
 export type SetVariableBlock = z.infer<typeof setVariableBlockSchema>;

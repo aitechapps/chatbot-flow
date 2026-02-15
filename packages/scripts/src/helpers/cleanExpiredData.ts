@@ -7,13 +7,15 @@ export const cleanExpiredData = async () => {
   return { totalDeletedChatSessions };
 };
 
+const CHAT_SESSIONS_BATCH_SIZE = 80000;
 const deleteOldChatSessions = async () => {
   const twoDaysAgo = new Date();
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
   twoDaysAgo.setHours(0, 0, 0, 0);
   let totalDeletedChatSessions = 0;
-  let deletingChatSessions;
+  let deletingChatSessions: number;
   do {
+    console.log(`🔨 Deleting ${CHAT_SESSIONS_BATCH_SIZE} old chat sessions...`);
     const chatSessions = await prisma.chatSession.findMany({
       where: {
         updatedAt: {
@@ -23,7 +25,7 @@ const deleteOldChatSessions = async () => {
       select: {
         id: true,
       },
-      take: 80000,
+      take: CHAT_SESSIONS_BATCH_SIZE,
     });
 
     deletingChatSessions = chatSessions.length;
@@ -31,7 +33,6 @@ const deleteOldChatSessions = async () => {
 
     const chunkSize = 500;
     for (let i = 0; i < chatSessions.length; i += chunkSize) {
-      console.log(`Deleting ${i}/${deletingChatSessions} chat sessions...`);
       const chunk = chatSessions.slice(i, i + chunkSize);
       await prisma.chatSession.deleteMany({
         where: {
@@ -41,7 +42,7 @@ const deleteOldChatSessions = async () => {
         },
       });
     }
-  } while (deletingChatSessions === 80000);
+  } while (deletingChatSessions === CHAT_SESSIONS_BATCH_SIZE);
   return { totalDeletedChatSessions };
 };
 
@@ -63,7 +64,7 @@ const deleteExpiredVerificationTokens = async () => {
   const threeDaysAgo = new Date();
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
   threeDaysAgo.setHours(0, 0, 0, 0);
-  let totalVerificationTokens;
+  let totalVerificationTokens: number;
   do {
     const verificationTokens = await prisma.verificationToken.findMany({
       where: {

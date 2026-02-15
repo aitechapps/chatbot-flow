@@ -188,6 +188,7 @@ const UsecaseTitle = ({
   onClick?: () => void;
 }) => (
   <button
+    type="button"
     className="flex flex-col items-center gap-2 shrink-0 cursor-pointer hover:[&_h3]:opacity-100"
     onClick={onClick}
   >
@@ -228,8 +229,8 @@ export const Cta = () => (
 
 const PreloadUseCaseImages = () => (
   <>
-    {useCases.map((useCase, index) => (
-      <div key={index} className="sr-only" aria-hidden="true">
+    {useCases.map((useCase) => (
+      <div key={useCase.label} className="sr-only" aria-hidden="true">
         <img src={useCase.images.builder.src} alt="" />
         <img src={useCase.images.bot.src} alt="" />
       </div>

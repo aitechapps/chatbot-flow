@@ -1,6 +1,8 @@
 import { Body, Container, Head, Hr, Html, Text } from "@react-email/components";
 import { render } from "@react-email/render";
 import type { ComponentProps } from "react";
+// biome-ignore lint/correctness/noUnusedImports: Need it for tsx execution
+import React from "react";
 import { sendEmail } from "../helpers/sendEmail";
 import { Logo } from "./components/Logo";
 import { container, footerText, hr, main, paragraph } from "./styles";
@@ -39,6 +41,10 @@ ResultsExportLinkEmail.PreviewProps = {
 } as Props;
 
 export default ResultsExportLinkEmail;
+
+export const renderResultsExportLinkEmail = (
+  props: ComponentProps<typeof ResultsExportLinkEmail>,
+) => render(<ResultsExportLinkEmail {...props} />);
 
 export const sendResultsExportLinkEmail = async (
   props: ComponentProps<typeof ResultsExportLinkEmail>,

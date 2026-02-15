@@ -4,7 +4,6 @@ import { Dialog } from "@typebot.io/ui/components/Dialog";
 import { CreateStripeCredentialsDialogBody } from "@/features/blocks/inputs/payment/components/CreateStripeCredentialsDialog";
 import { GoogleSheetConnectDialogBody } from "@/features/blocks/integrations/googleSheets/components/GoogleSheetsConnectDialog";
 import { SmtpCredentialsCreateDialogBody } from "@/features/blocks/integrations/sendEmail/components/SmtpCredentialsCreateDialog";
-import { useFeatureFlagsQuery } from "@/features/featureFlags/useFeatureFlagsQuery";
 import { ForgedCredentialsCreateDialogBody } from "@/features/forge/components/credentials/ForgedCredentialsCreateDialog";
 import { ForgedOAuthCredentialsCreateDialogBody } from "@/features/forge/components/credentials/ForgedOAuthCredentialsCreateDialog";
 import { WhatsAppCreateDialogBody } from "@/features/publish/components/deploy/dialogs/whatsApp/WhatsAppCredentialsDialog";
@@ -47,7 +46,6 @@ const CredentialsCreateDialogPopup = ({
   onClose: () => void;
   onSubmit: () => void;
 }) => {
-  const featureFlags = useFeatureFlagsQuery();
   if (type === "google sheets") return <GoogleSheetConnectDialogBody />;
   if (type === "smtp")
     return <SmtpCredentialsCreateDialogBody onNewCredentials={onSubmit} />;
@@ -60,11 +58,7 @@ const CredentialsCreateDialogPopup = ({
     );
   if (type === "whatsApp")
     return (
-      <WhatsAppCreateDialogBody
-        is360DialogEnabled={featureFlags?.["360dialog"] ?? false}
-        onNewCredentials={onSubmit}
-        onClose={onClose}
-      />
+      <WhatsAppCreateDialogBody onNewCredentials={onSubmit} onClose={onClose} />
     );
   if (type === "http proxy") return null;
 

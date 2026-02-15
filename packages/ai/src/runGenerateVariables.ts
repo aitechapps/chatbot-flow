@@ -2,12 +2,13 @@ import type { LogsStore, VariableStore } from "@typebot.io/forge/types";
 import { parseUnknownError } from "@typebot.io/lib/parseUnknownError";
 import { isNotEmpty } from "@typebot.io/lib/utils";
 import type { Variable } from "@typebot.io/variables/schemas";
-import { z } from "@typebot.io/zod";
 import { generateObject, type LanguageModel } from "ai";
+import { z } from "zod";
 import type {
   GenerateVariablesOptions,
   variablesToExtractSchema,
 } from "./parseGenerateVariablesOptions";
+import { zodToSchema } from "./zodToSchema";
 
 type Props = {
   model: LanguageModel;
@@ -35,7 +36,8 @@ export const runGenerateVariables = async ({
   }
 
   const hasOptionalVariables = variablesToExtract?.some(
-    (variableToExtract) => variableToExtract.isRequired === false,
+    (variableToExtract) =>
+      variableToExtract.type && variableToExtract.isRequired === false,
   );
 
   try {
@@ -65,12 +67,12 @@ const convertVariablesToExtractToSchema = ({
 }: {
   variablesToExtract: z.infer<typeof variablesToExtractSchema> | undefined;
   variables: Variable[];
-}): z.ZodTypeAny | undefined => {
+}) => {
   if (!variablesToExtract || variablesToExtract?.length === 0) return;
 
-  const shape: z.ZodRawShape = {};
+  const shape: Record<string, z.ZodTypeAny> = {};
   variablesToExtract.forEach((variableToExtract) => {
-    if (!variableToExtract) return;
+    if (!variableToExtract?.type) return;
     const matchingVariable = variables.find(
       (v) => v.id === variableToExtract.variableId,
     );
@@ -89,9 +91,10 @@ const convertVariablesToExtractToSchema = ({
         shape[matchingVariable.name] = z.array(z.string());
         break;
       case "enum": {
-        if (!variableToExtract.values || variableToExtract.values.length === 0)
-          return;
-        shape[matchingVariable.name] = z.enum(variableToExtract.values as any);
+        if (!variableToExtract.values) return;
+        const values = variableToExtract.values.filter(isDefined);
+        if (!isNonEmptyArray(values)) return;
+        shape[matchingVariable.name] = z.enum(values);
         break;
       }
     }
@@ -104,5 +107,10 @@ const convertVariablesToExtractToSchema = ({
       );
   });
 
-  return z.object(shape);
+  return zodToSchema(z.object(shape));
 };
+
+const isNonEmptyArray = <T>(items: T[]): items is [T, ...T[]] =>
+  items.length > 0;
+
+const isDefined = <T>(value: T | undefined): value is T => value !== undefined;

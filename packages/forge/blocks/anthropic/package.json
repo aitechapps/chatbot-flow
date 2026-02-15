@@ -13,10 +13,13 @@
     "@typebot.io/forge": "workspace:*",
     "@typebot.io/lib": "workspace:*",
     "@ai-sdk/anthropic": "^1.2.12",
-    "@typebot.io/zod": "workspace:*"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@typebot.io/tsconfig": "workspace:*",
     "@types/react": "^19.2.7"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
   }
 }

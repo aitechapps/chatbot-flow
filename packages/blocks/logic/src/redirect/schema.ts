@@ -1,5 +1,5 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { LogicBlockType } from "../constants";
 
 export const redirectOptionsSchema = z.object({
@@ -7,16 +7,11 @@ export const redirectOptionsSchema = z.object({
   isNewTab: z.boolean().optional(),
 });
 
-export const redirectBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([LogicBlockType.REDIRECT]),
-      options: redirectOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Redirect",
-    ref: "redirectLogic",
-  });
+export const redirectBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([LogicBlockType.REDIRECT]),
+    options: redirectOptionsSchema.optional(),
+  }),
+);
 
 export type RedirectBlock = z.infer<typeof redirectBlockSchema>;

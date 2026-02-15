@@ -1,6 +1,6 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
 import { singleVariableOrNumberSchema } from "@typebot.io/variables/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { BubbleBlockType } from "../constants";
 
 export const embedBubbleContentSchema = z.object({
@@ -15,16 +15,11 @@ export const embedBubbleContentSchema = z.object({
     .optional(),
 });
 
-export const embedBubbleBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([BubbleBlockType.EMBED]),
-      content: embedBubbleContentSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Embed",
-    ref: `embedBlock`,
-  });
+export const embedBubbleBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([BubbleBlockType.EMBED]),
+    content: embedBubbleContentSchema.optional(),
+  }),
+);
 
 export type EmbedBubbleBlock = z.infer<typeof embedBubbleBlockSchema>;

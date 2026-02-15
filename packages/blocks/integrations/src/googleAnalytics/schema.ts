@@ -1,6 +1,6 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
 import { singleVariableOrNumberSchema } from "@typebot.io/variables/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { IntegrationBlockType } from "../constants";
 
 export const googleAnalyticsOptionsSchema = z.object({
@@ -12,16 +12,11 @@ export const googleAnalyticsOptionsSchema = z.object({
   sendTo: z.string().optional(),
 });
 
-export const googleAnalyticsBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([IntegrationBlockType.GOOGLE_ANALYTICS]),
-      options: googleAnalyticsOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Google Analytics",
-    ref: "googleAnalyticsBlock",
-  });
+export const googleAnalyticsBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([IntegrationBlockType.GOOGLE_ANALYTICS]),
+    options: googleAnalyticsOptionsSchema.optional(),
+  }),
+);
 
 export type GoogleAnalyticsBlock = z.infer<typeof googleAnalyticsBlockSchema>;

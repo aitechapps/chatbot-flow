@@ -2,7 +2,7 @@ import {
   blockBaseSchema,
   itemBaseSchemas,
 } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { LogicBlockType } from "../constants";
 
 export const aItemSchemas = {
@@ -37,14 +37,9 @@ const abTestBlockV5Schema = blockBaseSchema.merge(
 
 export const abTestBlockSchemas = {
   v5: abTestBlockV5Schema,
-  v6: abTestBlockV5Schema
-    .extend({
-      items: z.tuple([aItemSchemas.v6, bItemSchemas.v6]),
-    })
-    .openapi({
-      title: "AB Test",
-      ref: "abTestLogic",
-    }),
+  v6: abTestBlockV5Schema.extend({
+    items: z.tuple([aItemSchemas.v6, bItemSchemas.v6]),
+  }),
 } as const;
 
 export const abTestBlockSchema = z.union([

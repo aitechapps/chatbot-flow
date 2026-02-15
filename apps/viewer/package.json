@@ -1,7 +1,11 @@
 {
   "name": "viewer",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
+    "check-types": "tsc --noEmit",
     "dev": "dotenv -e ./.env -e ../../.env  -- next dev -p 3001",
     "build": "dotenv -e ./.env -e ../../.env -- next build",
     "start": "dotenv -e ./.env -e ../../.env -- next start",
@@ -11,10 +15,10 @@
   "dependencies": {
     "partysocket": "^1.0.2",
     "@planetscale/database": "^1.8.0",
-    "@sentry/nextjs": "^10.8.0",
-    "@orpc/server": "^1.12.3",
-    "@orpc/openapi": "^1.12.3",
-    "@orpc/zod": "^1.12.3",
+    "@sentry/nextjs": "^10.32.1",
+    "@orpc/server": "^1.13.4",
+    "@orpc/openapi": "^1.13.4",
+    "@orpc/zod": "^1.13.4",
     "@orpc/otel": "^1.12.3",
     "@typebot.io/bot-engine": "workspace:*",
     "@typebot.io/react": "workspace:*",
@@ -46,7 +50,6 @@
     "@typebot.io/lib": "workspace:*",
     "@typebot.io/results": "workspace:*",
     "@typebot.io/variables": "workspace:*",
-    "@typebot.io/zod": "workspace:*",
     "@typebot.io/typebot": "workspace:*",
     "@typebot.io/theme": "workspace:*",
     "@typebot.io/conditions": "workspace:*",
@@ -54,12 +57,15 @@
     "@typebot.io/blocks-inputs": "workspace:*",
     "@typebot.io/blocks-logic": "workspace:*",
     "@typebot.io/blocks-bubbles": "workspace:*",
+    "@typebot.io/file-input-block": "workspace:*",
+    "@typebot.io/webhook-block": "workspace:*",
     "papaparse": "^5.4.1",
     "@typebot.io/runtime-session-store": "workspace:*",
-    "@typebot.io/config": "workspace:*"
+    "@typebot.io/config": "workspace:*",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@playwright/test": "^1.51.0",
+    "@playwright/test": "^1.57.0",
     "@typebot.io/playwright": "workspace:*",
     "@typebot.io/tsconfig": "workspace:*",
     "@types/cors": "^2.8.13",

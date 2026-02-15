@@ -17,7 +17,7 @@ import { MoreHorizontalIcon } from "@typebot.io/ui/icons/MoreHorizontalIcon";
 import { TrashIcon } from "@typebot.io/ui/icons/TrashIcon";
 import { cx } from "@typebot.io/ui/lib/cva";
 import { useState } from "react";
-import { queryClient, trpc } from "@/lib/queryClient";
+import { orpc, queryClient } from "@/lib/queryClient";
 import { DefaultAvatar } from "./DefaultAvatar";
 
 export const ThemeTemplateCard = ({
@@ -41,12 +41,12 @@ export const ThemeTemplateCard = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { mutate } = useMutation(
-    trpc.theme.deleteThemeTemplate.mutationOptions({
+    orpc.theme.deleteThemeTemplate.mutationOptions({
       onMutate: () => setIsDeleting(true),
       onSettled: () => setIsDeleting(false),
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.theme.listThemeTemplates.queryKey(),
+          queryKey: orpc.theme.listThemeTemplates.key(),
         });
         if (onDeleteSuccess) onDeleteSuccess();
       },
@@ -84,6 +84,7 @@ export const ThemeTemplateCard = ({
     defaultButtonsBackgroundColor[typebotVersion];
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: This card contains nested interactive controls.
     <div
       style={
         {
@@ -102,7 +103,15 @@ export const ThemeTemplateCard = ({
         "flex flex-col gap-0 rounded-md border cursor-pointer shadow-md transition-shadow",
         isDeleting ? "opacity-50 pointer-events-none" : "opacity-100",
       )}
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        onClick();
+      }}
     >
       <div
         style={{ ...parseBackground(themeTemplate.theme.general?.background) }}

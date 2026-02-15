@@ -125,7 +125,7 @@ export const ItemNodesList = ({
 
   const handlePushElementRef =
     (idx: number) => (elem: HTMLDivElement | null) => {
-      elem && (placeholderRefs.current[idx] = elem);
+      if (elem) placeholderRefs.current[idx] = elem;
     };
 
   const groupId = typebot?.groups.at(groupIndex)?.id;
@@ -139,6 +139,7 @@ export const ItemNodesList = ({
   };
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: This wrapper only prevents click propagation.
     <div
       className="flex flex-col gap-0 max-w-full flex-1"
       onClick={stopPropagating}

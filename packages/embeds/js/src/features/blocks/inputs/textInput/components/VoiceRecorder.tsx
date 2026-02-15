@@ -95,7 +95,7 @@ export const VoiceRecorder = (props: Props) => {
     if (!ctx) ctx = canvasElement.getContext("2d") ?? undefined;
 
     recordTimeInterval = setInterval(() => {
-      setRecordingTime((prev) => (prev += 1));
+      setRecordingTime((prev) => prev + 1);
     }, 1000);
 
     audioContext = new AudioContext();
@@ -167,6 +167,7 @@ export const VoiceRecorder = (props: Props) => {
       )}
     >
       <button
+        type="button"
         class="p-0.5 rounded-full"
         on:click={stopRecording}
         aria-label="Stop recording"

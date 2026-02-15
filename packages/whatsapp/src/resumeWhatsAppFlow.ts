@@ -16,9 +16,8 @@ import redis from "@typebot.io/lib/redis";
 import { uploadFileToBucket } from "@typebot.io/lib/s3/uploadFileToBucket";
 import { isDefined } from "@typebot.io/lib/utils";
 import {
-  deleteSessionStore,
-  getSessionStore,
   type SessionStore,
+  withSessionStore,
 } from "@typebot.io/runtime-session-store";
 import { downloadMedia } from "./downloadMedia";
 import type {
@@ -31,6 +30,7 @@ import { startWhatsAppSession } from "./startWhatsAppSession";
 import { WhatsAppError } from "./WhatsAppError";
 
 const MESSAGE_TOO_OLD_ELAPSED_MS = 3 * 60 * 1000; // 3 minutes
+const RESET_EMPTY_SESSION_AFTER_MS = 10 * 60 * 1000; // 10 minutes
 const INCOMING_MEDIA_MESSAGE_DEBOUNCE = 3_000;
 
 type Props = {
@@ -88,9 +88,21 @@ export const resumeWhatsAppFlow = async ({
       receivedPhoneNumberId: phoneNumberId,
     });
 
-  const session = await getSession(sessionId);
-  if (session && !session.state)
-    throw new WhatsAppError("Session is empty. Most likely in reply state.");
+  let session = await getSession(sessionId);
+
+  if (session && !session.state) {
+    if (
+      session.updatedAt.getTime() + RESET_EMPTY_SESSION_AFTER_MS <
+      Date.now()
+    ) {
+      console.warn("Old empty session, resetting...");
+      session = null;
+    } else {
+      throw new WhatsAppError(
+        "Session is empty. Most likely a new session with initial reply state.",
+      );
+    }
+  }
 
   const aggregationResponse =
     await aggregateParallelMediaMessagesIfRedisEnabled({
@@ -128,49 +140,49 @@ export const resumeWhatsAppFlow = async ({
     block,
   });
 
-  const sessionStore = getSessionStore(sessionId);
-  const {
-    input,
-    logs,
-    visitedEdges,
-    setVariableHistory,
-    newSessionState,
-    isWaitingForWebhook,
-  } = await resumeFlowAndSendWhatsAppMessages({
-    to: receivedMessages[0].from,
-    messageId: receivedMessages[0].id,
-    credentials,
-    isSessionExpired,
-    reply,
-    state: session?.state,
-    sessionStore,
-    contact,
-    workspaceId,
-    credentialsId,
-    referral,
-  });
-  deleteSessionStore(sessionId);
+  await withSessionStore(sessionId, async (sessionStore) => {
+    const {
+      input,
+      logs,
+      visitedEdges,
+      setVariableHistory,
+      newSessionState,
+      isWaitingForWebhook,
+    } = await resumeFlowAndSendWhatsAppMessages({
+      to: receivedMessages[0].from,
+      messageId: receivedMessages[0].id,
+      credentials,
+      isSessionExpired,
+      reply,
+      state: session?.state,
+      sessionStore,
+      contact,
+      workspaceId,
+      credentialsId,
+      referral,
+    });
 
-  await saveStateToDatabase({
-    clientSideActions: [],
-    input,
-    logs,
-    sessionId: {
-      type: "existing",
-      id: sessionId,
-    },
-    session: {
-      state: {
-        ...newSessionState,
-        currentBlockId:
-          !input && !isWaitingForWebhook
-            ? undefined
-            : newSessionState.currentBlockId,
+    await saveStateToDatabase({
+      clientSideActions: [],
+      input,
+      logs,
+      sessionId: {
+        type: "existing",
+        id: sessionId,
       },
-    },
-    isWaitingForExternalEvent: isWaitingForWebhook,
-    visitedEdges,
-    setVariableHistory,
+      session: {
+        state: {
+          ...newSessionState,
+          currentBlockId:
+            !input && !isWaitingForWebhook
+              ? undefined
+              : newSessionState.currentBlockId,
+        },
+      },
+      isWaitingForExternalEvent: isWaitingForWebhook,
+      visitedEdges,
+      setVariableHistory,
+    });
   });
 };
 
@@ -190,7 +202,9 @@ const convertWhatsAppMessageToTypebotMessage = async ({
   block?: Block;
 }): Promise<Message | undefined> => {
   let text = "";
-  const append = (s: string) => (text = text !== "" ? `${text}\n\n${s}` : s);
+  const append = (s: string) => {
+    text = text !== "" ? `${text}\n\n${s}` : s;
+  };
   let replyId: string | undefined;
   const attachedFileUrls: string[] = [];
   for (const message of messages) {
@@ -204,7 +218,7 @@ const convertWhatsAppMessageToTypebotMessage = async ({
         break;
       }
       case "interactive": {
-        switch (message.interactive.type) {
+        switch (message.interactive?.type) {
           case "button_reply": {
             replyId = message.interactive.button_reply.id;
             append(message.interactive.button_reply.title);
@@ -257,7 +271,7 @@ const convertWhatsAppMessageToTypebotMessage = async ({
               : block?.type === InputBlockType.TEXT
                 ? block.options?.attachments?.visibility
                 : undefined;
-        let fileUrl;
+        let fileUrl: string;
         if (fileVisibility !== "Public") {
           const extension = mimeType
             ? extensionFromMimeType[mimeType]

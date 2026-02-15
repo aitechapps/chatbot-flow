@@ -7,21 +7,26 @@ import prisma from "@typebot.io/prisma";
 import type { Prisma } from "@typebot.io/prisma/types";
 import { isTypebotVersionAtLeastV6 } from "@typebot.io/schemas/helpers/isTypebotVersionAtLeastV6";
 import { isReadTypebotForbidden } from "@typebot.io/typebot/helpers/isReadTypebotForbidden";
-import { z } from "@typebot.io/zod";
 import PartySocket from "partysocket";
+import { z } from "zod";
 
 export const executeTestWebhookInputSchema = z.object({
-  typebotId: z.string(),
-  blockId: z.string(),
+  params: z.object({
+    typebotId: z.string(),
+    blockId: z.string(),
+  }),
   body: z.unknown(),
 });
 
 type Context = {
-  user: Prisma.User;
+  user: Pick<Prisma.User, "email" | "id">;
 };
 
 export const handleExecuteTestWebhook = async ({
-  input: { typebotId, blockId, body },
+  input: {
+    params: { typebotId, blockId },
+    body,
+  },
   context: { user },
 }: {
   input: z.infer<typeof executeTestWebhookInputSchema>;

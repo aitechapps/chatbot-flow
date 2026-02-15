@@ -8,7 +8,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@typebot.io/config/orpc/viewer/middlewares";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import {
   chatReplySchema,
   sendMessageInputSchema,
@@ -37,7 +37,7 @@ import {
 import { handleSendMessageV1 } from "./legacy/handleSendMessageV1";
 import { handleSendMessageV2 } from "./legacy/handleSendMessageV2";
 
-export const publicChatRouter = {
+export const chatRouter = {
   startChatProcedure: publicProcedure
     .route({
       method: "POST",
@@ -92,9 +92,8 @@ export const publicChatRouter = {
     .input(updateTypebotInSessionInputSchema)
     .output(z.object({ message: z.literal("success") }))
     .handler(handleUpdateTypebotInSession),
-};
 
-export const legacyChatRouter = {
+  // Legacy endpoints
   saveClientLogsV1Procedure: publicProcedure
     .route({
       method: "POST",

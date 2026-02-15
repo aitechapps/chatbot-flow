@@ -1,5 +1,5 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { LogicBlockType } from "../constants";
 
 export const scriptOptionsSchema = z.object({
@@ -15,16 +15,11 @@ export const scriptOptionsSchema = z.object({
   shouldExecuteInParentContext: z.boolean().optional(),
 });
 
-export const scriptBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([LogicBlockType.SCRIPT]),
-      options: scriptOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Script",
-    ref: "scriptLogic",
-  });
+export const scriptBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([LogicBlockType.SCRIPT]),
+    options: scriptOptionsSchema.optional(),
+  }),
+);
 
 export type ScriptBlock = z.infer<typeof scriptBlockSchema>;

@@ -1,5 +1,5 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { LogicBlockType } from "../constants";
 
 export const waitOptionsSchema = z.object({
@@ -7,16 +7,11 @@ export const waitOptionsSchema = z.object({
   shouldPause: z.boolean().optional(),
 });
 
-export const waitBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([LogicBlockType.WAIT]),
-      options: waitOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Wait",
-    ref: "waitLogic",
-  });
+export const waitBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([LogicBlockType.WAIT]),
+    options: waitOptionsSchema.optional(),
+  }),
+);
 
 export type WaitBlock = z.infer<typeof waitBlockSchema>;

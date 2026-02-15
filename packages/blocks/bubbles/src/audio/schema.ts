@@ -1,5 +1,5 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { BubbleBlockType } from "../constants";
 
 export const audioBubbleContentSchema = z.object({
@@ -7,17 +7,12 @@ export const audioBubbleContentSchema = z.object({
   isAutoplayEnabled: z.boolean().optional(),
 });
 
-export const audioBubbleBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([BubbleBlockType.AUDIO]),
-      content: audioBubbleContentSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Audio",
-    ref: `audioBlock`,
-  });
+export const audioBubbleBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([BubbleBlockType.AUDIO]),
+    content: audioBubbleContentSchema.optional(),
+  }),
+);
 
 export type AudioBubbleBlock = z.infer<typeof audioBubbleBlockSchema>;
 export type AudioBubbleContent = z.infer<typeof audioBubbleContentSchema>;

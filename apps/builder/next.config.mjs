@@ -51,18 +51,11 @@ const nextConfig = {
     locales: ["en", "fr", "pt", "pt-BR", "de", "ro", "es", "it", "el"],
   },
   outputFileTracingRoot: join(__dirname, "../../"),
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // TODO: Remove once https://github.com/getsentry/sentry-javascript/issues/8105 is merged and sentry is upgraded
-      config.ignoreWarnings = [
-        ...(config.ignoreWarnings ?? []),
-        {
-          module: /@opentelemetry/,
-          message: /Critical dependency/,
-        },
-      ];
-      return config;
-    }
+  webpack: (config) => {
+    config.ignoreWarnings = [
+      { module: /@opentelemetry\/instrumentation/ },
+      { module: /require-in-the-middle/ },
+    ];
     return config;
   },
   headers: async () => {
@@ -83,7 +76,7 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+              `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:${isDev ? " http://localhost:* " : ""}`,
               "style-src 'self' 'unsafe-inline' https:",
               `connect-src 'self' https: wss:${
                 isDev ? " http://localhost:* ws://localhost:*" : ""
@@ -91,7 +84,7 @@ const nextConfig = {
               "frame-src 'self' https:",
               `img-src 'self' data: blob: https:${isDev ? " http://localhost:*" : ""}`,
               "font-src 'self' https: data:",
-              "media-src 'self' https:",
+              `media-src 'self' blob: https:${isDev ? " http://localhost:* " : ""}`,
               "worker-src 'self' blob:",
               "object-src 'none'",
             ].join("; "),
@@ -104,7 +97,7 @@ const nextConfig = {
     return [
       {
         source: "/healthz",
-        destination: "/api/health",
+        destination: "/api/healthz",
       },
     ];
   },

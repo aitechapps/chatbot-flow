@@ -1,24 +1,39 @@
 import { oo } from "@orpc/openapi";
 import { os as baseOs, ORPCError } from "@orpc/server";
 import * as Sentry from "@sentry/nextjs";
-import { authenticateByToken, type Context } from "./context";
+import type { Context } from "./context";
 
 export const os = baseOs.$context<Context>();
 
-const sentryMiddleware = os.middleware(async ({ next }) => {
+const webhookUrlPaths = [
+  "chatWhatsAppRouter/productionWebhookProcedure",
+  "chatWhatsAppRouter/subscribeWebhookProcedure",
+  "billingRouter/webhook",
+];
+
+const sentryMiddleware = os.middleware(async ({ next, path }) => {
   try {
     return await next();
   } catch (error) {
-    console.log(error, isUnknownError(error));
-    if (isUnknownError(error)) Sentry.captureException(error);
+    if (isUnknownError(error, path.join("/"))) {
+      if (error instanceof ORPCError && error.code?.includes("BAD_REQUEST")) {
+        Sentry.addBreadcrumb({
+          data: {
+            orpcErrorData: JSON.stringify(error.data),
+          },
+        });
+      }
+      Sentry.captureException(error);
+    }
     throw error;
   }
 });
 
-const isUnknownError = (error: unknown) => {
+const isUnknownError = (error: unknown, path: string) => {
   if (
     error instanceof ORPCError &&
-    !error.code?.includes("INTERNAL_SERVER_ERROR")
+    !error.code?.includes("INTERNAL_SERVER_ERROR") &&
+    !webhookUrlPaths.includes(path)
   ) {
     return false;
   }
@@ -27,7 +42,7 @@ const isUnknownError = (error: unknown) => {
 
 const requireAuth = oo.spec(
   os.middleware(async ({ next, context }) => {
-    const user = await authenticateByToken(context.bearerToken);
+    const user = await context.authenticate();
     if (user) {
       return next({
         context: {
@@ -47,7 +62,7 @@ const requireAuth = oo.spec(
 
 const needsOptionalAuthenticatedUser = os.middleware(
   async ({ next, context }) => {
-    const user = await authenticateByToken(context.bearerToken);
+    const user = await context.authenticate();
     return next({
       context: {
         ...context,

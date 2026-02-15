@@ -3,7 +3,7 @@ import {
   itemBaseSchemas,
 } from "@typebot.io/blocks-base/schemas";
 import { conditionSchema } from "@typebot.io/conditions/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { LogicBlockType } from "../constants";
 
 export const conditionItemSchemas = {
@@ -32,18 +32,13 @@ export const conditionBlockSchemas = {
       options: z.undefined(),
     }),
   ),
-  v6: blockBaseSchema
-    .merge(
-      z.object({
-        type: z.enum([LogicBlockType.CONDITION]),
-        items: z.array(conditionItemSchemas.v6),
-        options: z.undefined(),
-      }),
-    )
-    .openapi({
-      title: "Condition",
-      ref: "conditionLogic",
+  v6: blockBaseSchema.merge(
+    z.object({
+      type: z.enum([LogicBlockType.CONDITION]),
+      items: z.array(conditionItemSchemas.v6),
+      options: z.undefined(),
     }),
+  ),
 };
 
 export const conditionBlockSchema = z.union([

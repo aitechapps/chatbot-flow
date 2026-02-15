@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useTranslate } from "@tolgee/react";
 import { Checkbox } from "@typebot.io/ui/components/Checkbox";
 import { Skeleton } from "@typebot.io/ui/components/Skeleton";
@@ -5,7 +6,8 @@ import { Table } from "@typebot.io/ui/components/Table";
 import { Download01Icon } from "@typebot.io/ui/icons/Download01Icon";
 import { FileEmpty02Icon } from "@typebot.io/ui/icons/FileEmpty02Icon";
 import { ButtonLink } from "@/components/ButtonLink";
-import { useInvoicesQuery } from "../hooks/useInvoicesQuery";
+import { isSelfHostedInstance } from "@/helpers/isSelfHostedInstance";
+import { orpc } from "@/lib/queryClient";
 
 type Props = {
   workspaceId: string;
@@ -13,7 +15,16 @@ type Props = {
 
 export const InvoicesList = ({ workspaceId }: Props) => {
   const { t } = useTranslate();
-  const { data, status } = useInvoicesQuery(workspaceId);
+  const { data, status } = useQuery(
+    orpc.billing.listInvoices.queryOptions({
+      input: { workspaceId },
+      enabled: !isSelfHostedInstance(),
+    }),
+  );
+  const loadingRowKeys = Array.from(
+    { length: 3 },
+    (_, index) => `loading-row-${index}`,
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -62,8 +73,8 @@ export const InvoicesList = ({ workspaceId }: Props) => {
               </Table.Row>
             ))}
             {status === "pending" &&
-              Array.from({ length: 3 }).map((_, idx) => (
-                <Table.Row key={idx}>
+              loadingRowKeys.map((key) => (
+                <Table.Row key={key}>
                   <Table.Cell>
                     <Checkbox disabled />
                   </Table.Cell>

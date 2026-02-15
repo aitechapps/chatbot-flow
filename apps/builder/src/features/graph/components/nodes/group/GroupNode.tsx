@@ -188,8 +188,9 @@ export const GroupNode = ({ group, groupIndex }: Props) => {
             }}
             preview={{
               className: cx(
-                isEmpty(groupTitle) &&
-                  "absolute block left-4 top-2.5 w-[calc(100%-2rem)]  h-2",
+                isEmpty(groupTitle)
+                  ? "absolute block left-4 top-2.5 w-[calc(100%-2rem)] h-2"
+                  : "w-fit max-w-[calc(100%-2rem)]",
               ),
             }}
             onValueCommit={handleTitleSubmit}
@@ -204,7 +205,7 @@ export const GroupNode = ({ group, groupIndex }: Props) => {
           )}
           {focusedGroups.length === 1 && isFocused && (
             <GroupFocusToolbar
-              className="absolute top-[-50px] right-0"
+              className="absolute -top-12.5 right-0"
               groupId={group.id}
               isReadOnly={isReadOnly}
               onPlayClick={startPreviewAtThisGroup}

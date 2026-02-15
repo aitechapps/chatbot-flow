@@ -1,5 +1,5 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { IntegrationBlockType } from "../constants";
 import { HttpMethod, maxTimeout } from "./constants";
 
@@ -32,14 +32,9 @@ export const httpRequestV5Schema = z.object({
 
 const httpRequestSchemas = {
   v5: httpRequestV5Schema,
-  v6: httpRequestV5Schema
-    .omit({
-      id: true,
-    })
-    .openapi({
-      title: "HTTP Request",
-      ref: "httpRequestBlock",
-    }),
+  v6: httpRequestV5Schema.omit({
+    id: true,
+  }),
 };
 
 const httpRequestSchema = z.union([
@@ -93,7 +88,7 @@ const httpBlockSchema = z.union([httpBlockSchemas.v5, httpBlockSchemas.v6]);
 
 export const executableHttpRequestSchema = z.object({
   url: z.string(),
-  headers: z.record(z.string()).optional(),
+  headers: z.record(z.string(), z.string()).optional(),
   body: z.unknown().optional(),
   method: z.nativeEnum(HttpMethod).optional(),
 });

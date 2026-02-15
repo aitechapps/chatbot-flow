@@ -2,7 +2,7 @@ import {
   blockBaseSchema,
   optionBaseSchema,
 } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { InputBlockType } from "../constants";
 import { textInputOptionsBaseSchema } from "../text/schema";
 
@@ -14,16 +14,11 @@ export const urlInputOptionsSchema = optionBaseSchema
     }),
   );
 
-export const urlInputSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([InputBlockType.URL]),
-      options: urlInputOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "URL",
-    ref: "url",
-  });
+export const urlInputSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([InputBlockType.URL]),
+    options: urlInputOptionsSchema.optional(),
+  }),
+);
 
 export type UrlInputBlock = z.infer<typeof urlInputSchema>;

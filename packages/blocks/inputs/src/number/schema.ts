@@ -3,7 +3,7 @@ import {
   optionBaseSchema,
 } from "@typebot.io/blocks-base/schemas";
 import { singleVariableOrNumberSchema } from "@typebot.io/variables/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { InputBlockType } from "../constants";
 import { textInputOptionsBaseSchema } from "../text/schema";
 import { localeRegex, NumberInputStyle, NumberInputUnit } from "./constants";
@@ -27,16 +27,11 @@ export const numberInputOptionsSchema = optionBaseSchema
     }),
   );
 
-export const numberInputSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([InputBlockType.NUMBER]),
-      options: numberInputOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Number",
-    ref: "numberInput",
-  });
+export const numberInputSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([InputBlockType.NUMBER]),
+    options: numberInputOptionsSchema.optional(),
+  }),
+);
 
 export type NumberInputBlock = z.infer<typeof numberInputSchema>;

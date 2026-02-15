@@ -2,7 +2,7 @@ import {
   ComparisonOperators,
   LogicalOperator,
 } from "@typebot.io/conditions/constants";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { maxTypingEmulationMaxDelay, rememberUserStorages } from "./constants";
 
 export const systemMessagesSchema = z.object({
@@ -57,11 +57,11 @@ const metadataSchema = z.object({
 });
 
 const startConditionSchema = z.object({
-  logicalOperator: z.nativeEnum(LogicalOperator).optional(),
+  logicalOperator: z.enum(LogicalOperator).optional(),
   comparisons: z.array(
     z.object({
       id: z.string(),
-      comparisonOperator: z.nativeEnum(ComparisonOperators).optional(),
+      comparisonOperator: z.enum(ComparisonOperators).optional(),
       value: z.string().optional(),
     }),
   ),
@@ -76,28 +76,24 @@ export const whatsAppSettingsSchema = z.object({
     .min(0.01)
     .optional()
     .describe("Expiration delay in hours after latest interaction"),
+  errorAndMarketingStatusWebhookForwardUrl: z.string().url().optional(),
 });
 
-export const settingsSchema = z
-  .object({
-    general: generalSettings.optional(),
-    typingEmulation: typingEmulation.optional(),
-    metadata: metadataSchema.optional(),
-    whatsApp: whatsAppSettingsSchema.optional(),
-    publicShare: z
-      .object({
-        isEnabled: z.boolean().optional(),
-      })
-      .optional(),
-    security: z
-      .object({
-        allowedOrigins: z.array(z.string()).optional(),
-      })
-      .optional(),
-  })
-  .openapi({
-    title: "Settings",
-    ref: "settings",
-  });
+export const settingsSchema = z.object({
+  general: generalSettings.optional(),
+  typingEmulation: typingEmulation.optional(),
+  metadata: metadataSchema.optional(),
+  whatsApp: whatsAppSettingsSchema.optional(),
+  publicShare: z
+    .object({
+      isEnabled: z.boolean().optional(),
+    })
+    .optional(),
+  security: z
+    .object({
+      allowedOrigins: z.array(z.string()).optional(),
+    })
+    .optional(),
+});
 
 export type Settings = z.infer<typeof settingsSchema>;

@@ -2,7 +2,7 @@ import {
   blockBaseSchema,
   optionBaseSchema,
 } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { InputBlockType } from "../constants";
 import { PaymentProvider } from "./constants";
 
@@ -53,17 +53,12 @@ export const paymentInputRuntimeOptionsSchema = z.object({
   publicKey: z.string(),
 });
 
-export const paymentInputSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([InputBlockType.PAYMENT]),
-      options: paymentInputOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Payment",
-    ref: "paymentInput",
-  });
+export const paymentInputSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([InputBlockType.PAYMENT]),
+    options: paymentInputOptionsSchema.optional(),
+  }),
+);
 
 export type PaymentInputBlock = z.infer<typeof paymentInputSchema>;
 export type PaymentInputRuntimeOptions = z.infer<

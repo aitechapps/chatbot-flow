@@ -1,6 +1,6 @@
 import { safeParseFloat } from "@typebot.io/lib/safeParseFloat";
 import type { Prisma } from "@typebot.io/prisma/types";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { isSingleVariable } from "./isSingleVariable";
 
 export const listVariableValue = z.array(z.string().nullable());
@@ -48,9 +48,6 @@ export const singleVariableOrNumberSchema = z
       return safeParseFloat(value);
     }
     return value;
-  })
-  .openapi({
-    effectType: "input",
   });
 
 export const setVariableHistoryItemSchema = z.object({

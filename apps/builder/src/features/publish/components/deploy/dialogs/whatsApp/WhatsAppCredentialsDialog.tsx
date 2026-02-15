@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/client";
 import { createId } from "@paralleldrive/cuid2";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { TRPCClientError } from "@trpc/client";
 import { env } from "@typebot.io/env";
 import { parseUnknownClientError } from "@typebot.io/lib/parseUnknownClientError";
 import { isEmpty, isNotEmpty } from "@typebot.io/lib/utils";
@@ -13,16 +13,15 @@ import { ArrowLeft01Icon } from "@typebot.io/ui/icons/ArrowLeft01Icon";
 import { ArrowUpRight01Icon } from "@typebot.io/ui/icons/ArrowUpRight01Icon";
 import { TickIcon } from "@typebot.io/ui/icons/TickIcon";
 import { cx } from "@typebot.io/ui/lib/cva";
-import { useState } from "react";
+import { formatPhoneNumberDisplayName } from "@typebot.io/whatsapp/formatPhoneNumberDisplayName";
+import { Fragment, useState } from "react";
 import { ButtonLink } from "@/components/ButtonLink";
 import { CopyInput } from "@/components/inputs/CopyInput";
 import { Dialog360Logo } from "@/components/logos/Dialog360Logo";
 import { MetaLogo } from "@/components/logos/MetaLogo";
 import { TextLink } from "@/components/TextLink";
-import { useFeatureFlagsQuery } from "@/features/featureFlags/useFeatureFlagsQuery";
-import { formatPhoneNumberDisplayName } from "@/features/whatsapp/formatPhoneNumberDisplayName";
 import { useWorkspace } from "@/features/workspace/WorkspaceProvider";
-import { queryClient, trpc, trpcClient } from "@/lib/queryClient";
+import { orpc, orpcClient, queryClient } from "@/lib/queryClient";
 import { toast } from "@/lib/toast";
 
 const metaSteps = [
@@ -47,12 +46,9 @@ export const WhatsAppCredentialsDialog = ({
   onClose,
   onNewCredentials,
 }: Props) => {
-  const featureFlags = useFeatureFlagsQuery();
-
   return (
     <Dialog.Root isOpen={isOpen} onClose={onClose}>
       <WhatsAppCreateDialogBody
-        is360DialogEnabled={featureFlags?.["360dialog"] ?? false}
         onNewCredentials={onNewCredentials}
         onClose={onClose}
       />
@@ -70,18 +66,14 @@ const useSteps = () => {
 };
 
 export const WhatsAppCreateDialogBody = ({
-  is360DialogEnabled,
   onNewCredentials,
   onClose,
 }: {
-  is360DialogEnabled: boolean;
   onNewCredentials: (id: string) => void;
   onClose: () => void;
 }) => {
   const { workspace } = useWorkspace();
-  const [provider, setProvider] = useState<"meta" | "360dialog" | null>(
-    is360DialogEnabled ? null : "meta",
-  );
+  const [provider, setProvider] = useState<"meta" | "360dialog" | null>(null);
   const steps = provider === "meta" ? metaSteps : dialog360Steps;
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps();
   const [systemUserAccessToken, setSystemUserAccessToken] = useState("");
@@ -93,7 +85,7 @@ export const WhatsAppCreateDialogBody = ({
   const [isCreating, setIsCreating] = useState(false);
 
   const { mutate } = useMutation(
-    trpc.credentials.createCredentials.mutationOptions({
+    orpc.credentials.createCredentials.mutationOptions({
       onMutate: () => setIsCreating(true),
       onSettled: () => setIsCreating(false),
       onError: (err) => {
@@ -103,9 +95,7 @@ export const WhatsAppCreateDialogBody = ({
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries({
-          queryKey: trpc.credentials.listCredentials.queryKey({
-            workspaceId: workspace?.id,
-          }),
+          queryKey: orpc.credentials.listCredentials.key(),
         });
         onNewCredentials(data.credentialsId);
         onClose();
@@ -115,12 +105,12 @@ export const WhatsAppCreateDialogBody = ({
   );
 
   const { data: tokenInfoData } = useQuery(
-    trpc.whatsAppInternal.getSystemTokenInfo.queryOptions(
-      {
+    orpc.whatsApp.getSystemTokenInfo.queryOptions({
+      input: {
         token: systemUserAccessToken,
       },
-      { enabled: isNotEmpty(systemUserAccessToken) && activeStep > 1 },
-    ),
+      enabled: isNotEmpty(systemUserAccessToken) && activeStep > 1,
+    }),
   );
 
   const resetForm = () => {
@@ -168,7 +158,7 @@ export const WhatsAppCreateDialogBody = ({
     setIsVerifying(true);
     try {
       const { expiresAt, scopes } =
-        await trpcClient.whatsAppInternal.getSystemTokenInfo.query({
+        await orpcClient.whatsApp.getSystemTokenInfo({
           token: systemUserAccessToken,
         });
       if (expiresAt !== 0) {
@@ -190,7 +180,7 @@ export const WhatsAppCreateDialogBody = ({
       }
     } catch (err) {
       setIsVerifying(false);
-      if (err instanceof TRPCClientError) {
+      if (err instanceof ORPCError) {
         if (err.data?.logError) {
           toast(err.data.logError);
           return false;
@@ -206,14 +196,14 @@ export const WhatsAppCreateDialogBody = ({
   const isPhoneNumberAvailable = async () => {
     setIsVerifying(true);
     try {
-      const { name } = await trpcClient.whatsAppInternal.getPhoneNumber.query({
+      const { name } = await orpcClient.whatsApp.getPhoneNumber({
         systemToken: systemUserAccessToken,
         phoneNumberId,
       });
       setPhoneNumberName(name);
       try {
         const { message } =
-          await trpcClient.whatsAppInternal.verifyIfPhoneNumberAvailable.query({
+          await orpcClient.whatsApp.verifyIfPhoneNumberAvailable({
             phoneNumberDisplayName: name,
           });
 
@@ -225,7 +215,7 @@ export const WhatsAppCreateDialogBody = ({
           return false;
         }
         const { verificationToken } =
-          await trpcClient.whatsAppInternal.generateVerificationToken.mutate();
+          await orpcClient.whatsApp.generateVerificationToken();
         setVerificationToken(verificationToken);
       } catch (err) {
         console.error(err);
@@ -237,7 +227,7 @@ export const WhatsAppCreateDialogBody = ({
       }
     } catch (err) {
       setIsVerifying(false);
-      if (err instanceof TRPCClientError) {
+      if (err instanceof ORPCError) {
         if (err.data?.logError) {
           toast(err.data.logError);
           return false;
@@ -269,7 +259,7 @@ export const WhatsAppCreateDialogBody = ({
 
   return (
     <Dialog.Popup className="max-w-3xl">
-      <div className="flex items-center gap-2 h-[40px]">
+      <div className="flex items-center gap-2 h-10">
         {(activeStep > 0 || provider) && (
           <Button
             size="icon"
@@ -294,8 +284,8 @@ export const WhatsAppCreateDialogBody = ({
         <>
           <div className="flex items-center gap-2 w-full">
             {steps.map((step, index) => (
-              <>
-                <div key={index} className="flex gap-2">
+              <Fragment key={step.title}>
+                <div className="flex gap-2">
                   <div className="flex items-center gap-2">
                     <div
                       className={cx(
@@ -315,7 +305,7 @@ export const WhatsAppCreateDialogBody = ({
                   </div>
                 </div>
                 {index !== steps.length - 1 && <hr className="flex-1 w-full" />}
-              </>
+              </Fragment>
             ))}
           </div>
           {provider === "meta" && (
@@ -586,7 +576,8 @@ const ProviderSelection = ({
   onProviderSelect: (provider: "meta" | "360dialog") => void;
 }) => (
   <div className="flex items-center gap-4 w-full">
-    <div
+    <button
+      type="button"
       className="cursor-pointer border p-8 rounded-md flex flex-col items-center text-center gap-3 hover:bg-gray-2 flex-1"
       onClick={() => onProviderSelect("meta")}
     >
@@ -601,8 +592,9 @@ const ProviderSelection = ({
         Requires Meta Developer account, system user token, and phone number
         setup
       </p>
-    </div>
-    <div
+    </button>
+    <button
+      type="button"
       className="cursor-pointer border p-8 rounded-md flex flex-col items-center text-center gap-3 hover:bg-gray-2 flex-1"
       onClick={() => onProviderSelect("360dialog")}
     >
@@ -618,7 +610,7 @@ const ProviderSelection = ({
       <p className="text-xs" color="gray.500">
         Simple setup with API key only
       </p>
-    </div>
+    </button>
   </div>
 );
 
@@ -665,7 +657,7 @@ const Dialog360PhoneNumber = ({
 const Dialog360Webhook = ({ credentialsId }: { credentialsId: string }) => {
   const { workspace } = useWorkspace();
   const webhookUrl = `${
-    env.NEXT_PUBLIC_VIEWER_URL.at(1) ?? env.NEXT_PUBLIC_VIEWER_URL[0]
+    env.NEXT_PUBLIC_VIEWER_URL?.at(1) ?? env.NEXT_PUBLIC_VIEWER_URL?.[0]
   }/api/v1/workspaces/${workspace?.id}/whatsapp/${credentialsId}/webhook`;
 
   return (

@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import { memo, useMemo } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { SingleLineEditable } from "@/components/SingleLineEditable";
-import { trpc } from "@/lib/queryClient";
+import { orpc } from "@/lib/queryClient";
 import { useTypebotDnd } from "../TypebotDndProvider";
 
 type Props = {
@@ -40,13 +40,13 @@ const FolderButton = ({
   );
   const deleteDialogControls = useOpenControls();
   const { mutate: deleteFolder } = useMutation(
-    trpc.folders.deleteFolder.mutationOptions({
+    orpc.folders.deleteFolder.mutationOptions({
       onSuccess: onFolderDeleted,
     }),
   );
 
   const { mutate: updateFolder } = useMutation(
-    trpc.folders.updateFolder.mutationOptions({
+    orpc.folders.updateFolder.mutationOptions({
       onSuccess: onFolderRenamed,
     }),
   );
@@ -70,8 +70,8 @@ const FolderButton = ({
   const handleMouseLeave = () => setMouseOverFolderId(undefined);
   return (
     <>
+      {/* biome-ignore lint/a11y/useSemanticElements: This card contains nested interactive controls. */}
       <div
-        role="button"
         className={cn(
           buttonVariants({
             variant: "outline-secondary",
@@ -81,7 +81,15 @@ const FolderButton = ({
           "w-[225px] h-[270px] relative px-6 whitespace-normal transition-all duration-100 justify-center bg-gray-1",
           isTypebotOver && "border-2 border-orange-8",
         )}
+        role="button"
+        tabIndex={0}
         onClick={handleClick}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          handleClick();
+        }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

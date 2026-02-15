@@ -1,4 +1,4 @@
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { IntegrationBlockType } from "../constants";
 import { httpBlockSchemas } from "../httpRequest/schema";
 
@@ -8,16 +8,11 @@ export const zapierBlockSchemas = {
       type: z.enum([IntegrationBlockType.ZAPIER]),
     }),
   ),
-  v6: httpBlockSchemas.v6
-    .merge(
-      z.object({
-        type: z.enum([IntegrationBlockType.ZAPIER]),
-      }),
-    )
-    .openapi({
-      title: "Zapier",
-      ref: "zapierBlock",
+  v6: httpBlockSchemas.v6.merge(
+    z.object({
+      type: z.enum([IntegrationBlockType.ZAPIER]),
     }),
+  ),
 } as const;
 
 const zapierBlockSchema = z.union([

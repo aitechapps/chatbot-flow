@@ -35,6 +35,10 @@ const data = [
         to: "/blog",
       },
       {
+        label: "Templates",
+        to: "/templates",
+      },
+      {
         label: "GitHub",
         href: githubRepoUrl,
       },
@@ -49,6 +53,46 @@ const data = [
       {
         label: "OSS Friends",
         to: "/oss-friends",
+      },
+    ],
+  },
+  {
+    title: "Blog",
+    links: [
+      {
+        label: "Lead Generation Chatbot",
+        to: "/blog/$slug",
+        params: {
+          slug: "lead-generation-chatbot",
+        },
+      },
+      {
+        label: "Best Chatbot Builder",
+        to: "/blog/$slug",
+        params: {
+          slug: "best-chatbot-builder",
+        },
+      },
+      {
+        label: "Create WhatsApp Chatbot",
+        to: "/blog/$slug",
+        params: {
+          slug: "create-whatsapp-chatbot",
+        },
+      },
+      {
+        label: "FAQ Chatbot",
+        to: "/blog/$slug",
+        params: {
+          slug: "faq-chatbot",
+        },
+      },
+      {
+        label: "Landbot Alternative",
+        to: "/blog/$slug",
+        params: {
+          slug: "landbot-alternative",
+        },
       },
     ],
   },

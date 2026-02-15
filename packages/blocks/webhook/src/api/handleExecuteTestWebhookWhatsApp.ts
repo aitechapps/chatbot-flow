@@ -9,21 +9,26 @@ import type { Prisma } from "@typebot.io/prisma/types";
 import { isTypebotVersionAtLeastV6 } from "@typebot.io/schemas/helpers/isTypebotVersionAtLeastV6";
 import { isReadTypebotForbidden } from "@typebot.io/typebot/helpers/isReadTypebotForbidden";
 import { resumeWhatsAppFlow } from "@typebot.io/whatsapp/resumeWhatsAppFlow";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 
 export const executeTestWebhookWhatsAppInputSchema = z.object({
-  typebotId: z.string(),
-  blockId: z.string(),
-  phone: z.string(),
+  params: z.object({
+    typebotId: z.string(),
+    blockId: z.string(),
+    phone: z.string(),
+  }),
   body: z.unknown(),
 });
 
 type Context = {
-  user: Prisma.User;
+  user: Pick<Prisma.User, "email" | "id">;
 };
 
 export const handleExecuteTestWebhookWhatsApp = async ({
-  input: { typebotId, blockId, phone, body },
+  input: {
+    params: { typebotId, blockId, phone },
+    body,
+  },
   context: { user },
 }: {
   input: z.infer<typeof executeTestWebhookWhatsAppInputSchema>;

@@ -1,5 +1,5 @@
 import { blockBaseSchema } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { LogicBlockType } from "../constants";
 
 export const jumpOptionsSchema = z.object({
@@ -7,16 +7,11 @@ export const jumpOptionsSchema = z.object({
   blockId: z.string().optional(),
 });
 
-export const jumpBlockSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([LogicBlockType.JUMP]),
-      options: jumpOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Jump",
-    ref: "jumpLogic",
-  });
+export const jumpBlockSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([LogicBlockType.JUMP]),
+    options: jumpOptionsSchema.optional(),
+  }),
+);
 
 export type JumpBlock = z.infer<typeof jumpBlockSchema>;

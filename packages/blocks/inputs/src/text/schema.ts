@@ -2,7 +2,7 @@ import {
   blockBaseSchema,
   optionBaseSchema,
 } from "@typebot.io/blocks-base/schemas";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { InputBlockType } from "../constants";
 import { fileVisibilityOptions } from "../file/constants";
 
@@ -48,16 +48,11 @@ export const textInputOptionsSchema = textInputOptionsBaseSchema
     }),
   );
 
-export const textInputSchema = blockBaseSchema
-  .merge(
-    z.object({
-      type: z.enum([InputBlockType.TEXT]),
-      options: textInputOptionsSchema.optional(),
-    }),
-  )
-  .openapi({
-    title: "Text",
-    ref: "textInput",
-  });
+export const textInputSchema = blockBaseSchema.merge(
+  z.object({
+    type: z.enum([InputBlockType.TEXT]),
+    options: textInputOptionsSchema.optional(),
+  }),
+);
 
 export type TextInputBlock = z.infer<typeof textInputSchema>;

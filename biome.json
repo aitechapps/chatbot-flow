@@ -14,7 +14,12 @@
       "!**/emojiList.json",
       "!**/iconNames.ts",
       "!**/.last-run.json",
-      "!**/test/assets/**/*.json"
+      "!**/test/assets/**/*.json",
+      "!.opencode",
+      "!.codex",
+      "!.cursor",
+      "!.factory",
+      "!.gemini"
     ]
   },
   "css": {
@@ -26,24 +31,12 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "security": {
-        "noDangerouslySetInnerHtml": "off",
-        "noGlobalEval": "off"
-      },
+      "security": {},
       "a11y": {
-        "noSvgWithoutTitle": "off",
-        "useMediaCaption": "off",
-        "useIframeTitle": "off",
-        "useKeyWithClickEvents": "off",
-        "useButtonType": "off",
-        "noRedundantAlt": "off",
-        "noAutofocus": "off",
-        "useSemanticElements": "off",
         "useFocusableInteractive": "off",
         "noStaticElementInteractions": "off"
       },
       "performance": {
-        "noAccumulatingSpread": "off",
         "noImgElement": "off"
       },
       "style": {
@@ -76,9 +69,6 @@
         "noBannedTypes": "off"
       },
       "suspicious": {
-        "noArrayIndexKey": "off",
-        "noAssignInExpressions": "off",
-        "noImplicitAnyLet": "off",
         "noExplicitAny": "off",
         "noExportsInTest": "off",
         "noConfusingVoidType": "off",

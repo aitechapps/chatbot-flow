@@ -1,5 +1,89 @@
 # Changelog
 
+<a name="3.15.2"></a>
+## 3.15.2 (2026-01-11)
+
+### Fixed
+
+- 🚑 Fix app router automatically adding &#x60;transfer-encoding: chunked&#x60; header to backend requests [[69efa2f](https://github.com/baptisteArno/typebot.io/commit/69efa2f3c9cb0ca1c24b3c053767020397fbb57b)]
+
+### Internal
+
+- 🔧 Fix build type issue [[94499b4](https://github.com/baptisteArno/typebot.io/commit/94499b489632d803ea00814afe3836bd236dd353)]
+- 🔧 Fix @opentelemetry/winston-transport log error [[06110a8](https://github.com/baptisteArno/typebot.io/commit/06110a80848fe4ea60d2a5b971f9e4572849c0c1)]
+- 🔧 Add webhook block e2e test [[e6d58e2](https://github.com/baptisteArno/typebot.io/commit/e6d58e2ad42d2774ebf6107bdda359a8331b72d0)]
+- 🔧 Add CLAUDE.md symlink [[a31711f](https://github.com/baptisteArno/typebot.io/commit/a31711fd50a6126a9ec9b32225d83eb9ca95f64b)]
+
+
+<a name="3.15.1"></a>
+## 3.15.1 (2026-01-09)
+
+### Fixed
+
+- 🐛 Fix webhook listening not working [[61b4987](https://github.com/baptisteArno/typebot.io/commit/61b4987b78b4a4e8d9111f3eb3ef453db499880e)]
+- 💚 Fix build fail react-emails [[ae1a35c](https://github.com/baptisteArno/typebot.io/commit/ae1a35c3148d2f59285082ffc5e8f6f356f06c01)]
+- 💚 Fix CI not sending email due to React not defined [[d99a858](https://github.com/baptisteArno/typebot.io/commit/d99a858cd038e3b65b1793f9a3f72726f677978b)]
+
+### Internal
+
+- 🔧 Add AGENTS.md [[ef0b2bf](https://github.com/baptisteArno/typebot.io/commit/ef0b2bfbbb20b4e1a2ebc1ce538c494846082283)]
+- 🔧 Add react in scripts deps [[0ffe0d5](https://github.com/baptisteArno/typebot.io/commit/0ffe0d51fe143dfdae9a3d1c847c4bbce608ebb1)]
+- 🔧 Update scripts tsconfig to include .tsx files [[82d6b2f](https://github.com/baptisteArno/typebot.io/commit/82d6b2ff41f434c9ed07f13447536edddc6e3e47)]
+- ♻️ Simplify last hour results query to return active typebot IDs [[445ae30](https://github.com/baptisteArno/typebot.io/commit/445ae3061feccd609a08421fbaf01379f5306763)]
+- 🔧 Fix low spender detection for churn agent [[069923e](https://github.com/baptisteArno/typebot.io/commit/069923e2e88ddee622d04da6419bdf39d7eee851)]
+
+### Miscellaneous
+
+- 🛂 Automatically detect and take down abusing workspace usage [[b032640](https://github.com/baptisteArno/typebot.io/commit/b0326406f825141abb70db33fa35cdad20706d6e)]
+
+
+<a name="3.15.0"></a>
+## 3.15.0 (2026-01-06)
+
+### New features
+
+- ✨ Add WhatsApp typing indicator [[ea2a87d](https://github.com/baptisteArno/typebot.io/commit/ea2a87dd5094bd8a206ef38d8640d821f4b8f012)]
+
+### UI/UX Improvements
+
+- 💄 Remove climate contribution messaging from billing and pricing pages [[534588d](https://github.com/baptisteArno/typebot.io/commit/534588de9862c16149f3b385f7d305cb34c76f90)]
+- 🚸 Allow s3 private URL access with PAT [[62d3ba8](https://github.com/baptisteArno/typebot.io/commit/62d3ba83f0fc05920386eea681d04d7350741c08)]
+- 🚸 Autostart chat only if input has no information to display [[883e282](https://github.com/baptisteArno/typebot.io/commit/883e2828992097250caa59a52d49a8f77f7b2c7e)]
+- 🚸 Include session variables in http request sample body [[6850b2a](https://github.com/baptisteArno/typebot.io/commit/6850b2a89b5e86bb7f2dcb3a303f385471978dee)]
+
+### Fixed
+
+- 🐛 Preserve empty lines when converting markdown to rich text [[6ab7cbb](https://github.com/baptisteArno/typebot.io/commit/6ab7cbb2cb47dac84eff402fd488ed2e639d3213)]
+- 💚 Fix typecheck lastActivityAt on schema [[f29467d](https://github.com/baptisteArno/typebot.io/commit/f29467df4f6e18ca28b683ae51902a10d3b61b35)]
+- 🐛 Fix typing bubble animation transform value [[1fb2ab3](https://github.com/baptisteArno/typebot.io/commit/1fb2ab3ede872a30e764287484b6e14512578958)]
+- 🐛 Remove redundant error handling in getLastHourResults function [[1baaf73](https://github.com/baptisteArno/typebot.io/commit/1baaf73c9eecfb2a986dd3c66548d46be0199c1c)]
+- ✏️ Fix grammar and clarity in README.md ([#2324](https://github.com/baptisteArno/typebot.io/issues/2324)) [[f50674c](https://github.com/baptisteArno/typebot.io/commit/f50674cc736b6639166713e05327dbf2167cc129)]
+- 🐛 Fix zapier trigger endpoints format [[a28f186](https://github.com/baptisteArno/typebot.io/commit/a28f186d049d034e4438343821eb420fe40e5afe)]
+- 🚑 Fix 360 dialog typing indicator not compatible [[fb065af](https://github.com/baptisteArno/typebot.io/commit/fb065af61154602c43a54bb58b2f50abaa2d0883)]
+- 🐛 Fix chat preview API authorization [[8c56d19](https://github.com/baptisteArno/typebot.io/commit/8c56d19732c30d8f659c9f126f9ae57263fbdf3b)]
+- 🚑 Fix bot handler api error definition [[3a0ff4b](https://github.com/baptisteArno/typebot.io/commit/3a0ff4b59ea7ac0b1adc7fda37b561301a24e1ae)]
+- 🐛 Fix Dify blocking mode error for Agent chat apps [[1f90256](https://github.com/baptisteArno/typebot.io/commit/1f90256d29836687eda53dd56a4facb895a90f44)]
+
+### Content
+
+- 📝 Add December blog posts ([#2330](https://github.com/baptisteArno/typebot.io/issues/2330)) [[55a5ed4](https://github.com/baptisteArno/typebot.io/commit/55a5ed4cb787c4b0b14459c7a4109a4421f0c344)]
+
+### Internal
+
+- 🔧 Optimize hourly results check to only process active typebots [[81ac192](https://github.com/baptisteArno/typebot.io/commit/81ac192886bac27456ee477b1a9dfc052c41d0bc)]
+- 🗃️ Track last activity date on published typebots [[48b8663](https://github.com/baptisteArno/typebot.io/commit/48b86634b6a48d288974aeae997b689a29bbadc8)]
+- 🔧 Make churn agent messages more concise for low-value customers [[1a011ad](https://github.com/baptisteArno/typebot.io/commit/1a011ada6402958446c4fea4c887ca8d83791f43)]
+- 🔒 Implement rate limiting for all API endpoints sending email [[e09998e](https://github.com/baptisteArno/typebot.io/commit/e09998eef0c7fcf8fedd0a172c0e2105e8c91e23)]
+- 🔧 Improve getLastHourResults query performance [[e5b53b3](https://github.com/baptisteArno/typebot.io/commit/e5b53b35722859ad9421a0ed658ffb6555a2c653)]
+- ♻️ Refacto viewer server handler to oRPC [[3d64988](https://github.com/baptisteArno/typebot.io/commit/3d649886c2543cba9fcf01cccd6a9c4d60dfe4ae)]
+- 🔥 Remove legacy ai stream API handlers [[f3e984a](https://github.com/baptisteArno/typebot.io/commit/f3e984a483631c1fce5e3ee46cf5541a6e6e6bfc)]
+- 🔧 Improve churn agent snapshot instructions [[506435f](https://github.com/baptisteArno/typebot.io/commit/506435ffa6ca776778975de789de9a2a1bf3b002)]
+
+### Miscellaneous
+
+- 🧑‍💻 Improve unknown http req error logging [[b2102d0](https://github.com/baptisteArno/typebot.io/commit/b2102d0375c00123aed23961afbe567e93b86bf9)]
+
+
 <a name="3.14.2"></a>
 ## 3.14.2 (2025-12-09)
 

@@ -1,5 +1,5 @@
 import { ComparisonOperators } from "@typebot.io/conditions/constants";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 
 const mediaSchema = z
   .object({
@@ -141,12 +141,12 @@ export const incomingMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("button"),
     button: z.object({
       text: z.string(),
-      payload: z.string(),
+      payload: z.string().optional(),
     }),
   }),
   sharedIncomingMessageFieldsSchema.extend({
     type: z.literal("interactive"),
-    interactive: incomingInteractiveReplySchema,
+    interactive: incomingInteractiveReplySchema.optional(),
   }),
   sharedIncomingMessageFieldsSchema.extend({
     type: z.literal("image"),
@@ -240,12 +240,38 @@ const whatsAppError = z.object({
   code: z.number(),
   title: z.string(),
   message: z.string().optional(),
-  error_data: z.object({ details: z.string() }),
+  details: z.string().optional(),
+  href: z.string().optional(),
+  error_data: z.object({ details: z.string() }).optional(),
 });
 export type WhatsAppIncomingError = z.infer<typeof whatsAppError>;
 
 const incomingStatuses = z.object({
+  id: z.string(),
   recipient_id: z.string(),
+  status: z.enum(["sent", "delivered", "read", "failed", "deleted"]),
+  timestamp: z.string(),
+  type: z.literal("message").optional(),
+  conversation: z
+    .object({
+      id: z.string(),
+      expiration_timestamp: z.string().optional(),
+      origin: z
+        .object({
+          type: z.string(),
+        })
+        .optional(),
+    })
+    .optional(),
+  pricing: z
+    .object({
+      billable: z.boolean(),
+      pricing_model: z.string(),
+      category: z.string(),
+      type: z.string().optional(),
+    })
+    .optional(),
+  biz_opaque_callback_data: z.string().optional(),
   // Most likely something with the outbound message
   errors: z.array(whatsAppError).optional(),
 });
@@ -258,15 +284,18 @@ export const whatsAppWebhookRequestBodySchema = z.object({
           value: z.object({
             metadata: z
               .object({
+                display_phone_number: z.string().optional(),
                 phone_number_id: z.string(),
               })
               .optional(),
             contacts: z
               .array(
                 z.object({
-                  profile: z.object({
-                    name: z.string(),
-                  }),
+                  profile: z
+                    .object({
+                      name: z.string(),
+                    })
+                    .optional(),
                 }),
               )
               .optional(),

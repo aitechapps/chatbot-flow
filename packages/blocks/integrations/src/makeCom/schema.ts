@@ -1,4 +1,4 @@
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 import { IntegrationBlockType } from "../constants";
 import { httpBlockSchemas } from "../httpRequest/schema";
 
@@ -8,16 +8,11 @@ export const makeComBlockSchemas = {
       type: z.enum([IntegrationBlockType.MAKE_COM]),
     }),
   ),
-  v6: httpBlockSchemas.v6
-    .merge(
-      z.object({
-        type: z.enum([IntegrationBlockType.MAKE_COM]),
-      }),
-    )
-    .openapi({
-      title: "Make.com",
-      ref: "makeComBlock",
+  v6: httpBlockSchemas.v6.merge(
+    z.object({
+      type: z.enum([IntegrationBlockType.MAKE_COM]),
     }),
+  ),
 } as const;
 
 const makeComBlockSchema = z.union([

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 import { isDefined } from "@typebot.io/lib/utils";
 import { convertResultsToTableData } from "@typebot.io/results/convertResultsToTableData";
@@ -12,11 +12,12 @@ import type {
 import type { Typebot } from "@typebot.io/typebot/schemas/typebot";
 import type { ReactNode } from "react";
 import { createContext, useContext, useMemo } from "react";
-import { trpc } from "@/lib/queryClient";
+import { orpc } from "@/lib/queryClient";
 import type { timeFilterValues } from "../analytics/constants";
 import { useTypebot } from "../editor/providers/TypebotProvider";
 import { parseCellContent } from "./helpers/parseCellContent";
-import { useResultsQuery } from "./hooks/useResultsQuery";
+
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const resultsContext = createContext<{
   resultsList: { results: ResultWithAnswers[] }[] | undefined;
@@ -45,10 +46,25 @@ export const ResultsProvider = ({
   onDeleteResults: (totalResultsDeleted: number) => void;
 }) => {
   const { publishedTypebot } = useTypebot();
-  const { data, fetchNextPage, hasNextPage, refetch } = useResultsQuery({
-    timeFilter,
-    typebotId,
-  });
+  const {
+    data: resultsData,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery(
+    orpc.results.getResults.infiniteOptions({
+      input: (cursor: number) => ({
+        cursor,
+        timeZone,
+        timeFilter,
+        typebotId,
+      }),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }),
+  );
+
+  const data = resultsData?.pages;
 
   const linkedTypebotIds =
     publishedTypebot?.groups
@@ -56,22 +72,22 @@ export const ResultsProvider = ({
       .reduce<string[]>((typebotIds, block) => {
         if (block.type !== LogicBlockType.TYPEBOT_LINK) return typebotIds;
         const typebotId = block.options?.typebotId;
-        return isDefined(typebotId) &&
+        if (
+          isDefined(typebotId) &&
           !typebotIds.includes(typebotId) &&
           block.options?.mergeResults !== false
-          ? [...typebotIds, typebotId]
-          : typebotIds;
+        )
+          typebotIds.push(typebotId);
+        return typebotIds;
       }, []) ?? [];
 
   const { data: linkedTypebotsData } = useQuery(
-    trpc.getLinkedTypebots.queryOptions(
-      {
+    orpc.getLinkedTypebots.queryOptions({
+      input: {
         typebotId,
       },
-      {
-        enabled: linkedTypebotIds.length > 0,
-      },
-    ),
+      enabled: linkedTypebotIds.length > 0,
+    }),
   );
 
   const flatResults = useMemo(

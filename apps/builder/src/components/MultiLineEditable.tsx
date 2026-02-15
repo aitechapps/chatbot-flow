@@ -83,8 +83,15 @@ export const MultiLineEditable = ({
         <span
           {...preview}
           onClick={() => setIsEditing(true)}
+          onKeyDown={(event) => {
+            preview?.onKeyDown?.(event);
+            if (event.defaultPrevented) return;
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            setIsEditing(true);
+          }}
           className={cn(
-            "hover:bg-gray-3 inline-flex w-full p-1 border border-transparent rounded-md whitespace-pre-line",
+            "hover:bg-gray-3 inline-flex w-full p-1 border border-transparent rounded-md whitespace-pre-line cursor-pointer",
             preview?.className,
           )}
         >

@@ -14,20 +14,16 @@ import {
   typebotV5Schema,
   typebotV6Schema,
 } from "@typebot.io/typebot/schemas/typebot";
-import { z } from "@typebot.io/zod";
+import { z } from "zod";
 
 export const startElementIdSchema = z.union([
   z.object({
     startGroupId: z.string().describe("Start chat from a specific group."),
-    startEventId: z.never().optional().openapi({
-      type: "string",
-    }),
+    startEventId: z.never().optional(),
   }),
   z.object({
     startEventId: z.string().describe("Start chat from a specific event."),
-    startGroupId: z.never().optional().openapi({
-      type: "string",
-    }),
+    startGroupId: z.never().optional(),
   }),
   z.object({}),
 ]);
@@ -52,7 +48,7 @@ const startParamsSchema = z
       .describe("Provide it if you'd like to overwrite an existing result."),
 
     prefilledVariables: z
-      .record(z.unknown())
+      .record(z.string(), z.unknown())
       .optional()
       .describe(
         "[More info about prefilled variables.](https://docs.typebot.io/editor/variables#prefilled-variables)",
